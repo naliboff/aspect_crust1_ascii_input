@@ -1,14 +1,44 @@
-# File: ascii_input_crust1
 # Author:  John Naliboff
-# Purpose: Write ascii data files based on CRUST1.0 that are referenced
-#          in an ASPECT parameter file for defining:
-#             1. Compositional field initial conditions
-#             2. Traction boundary conditions
-#             3. Tracer distributions
 #
-# Notes: 1. The code has not been optimized for NUMPY vector operations
-#        2. The code does not work with the 2D shell "she" option 
+# Overview
+#   A python script to process CRUST1.0 data and write ascii files
+#   that can be used in ASPECT. At present, the code can only
+#   write files for compositional initial conditions. 
 #
+
+# Input file information
+#   Running the code requires specifying various parameters in a separate python
+#   file that is specified when the code is executed. These parameters include
+#   information about the geographical extent for CRUST1.0 data extraction,
+#   model height/base/reference surface, vertical sampling resolution, coordinate
+#   system (cartesian or spherical) and model name.
+#        Description                   Units    name
+#     1. Minimum longitude            (degrees; lon1)
+#     2. Maximum longitude            (degrees; lon2)
+#     3. Minimum latitude             (degrees; lat1)
+#     4. Maximum latitude             (degrees; lat2)
+#     5. Maximum colatitude           (degres; 90. - lat1)
+#     6. Minimum colatitude           (degrees; 90. - lat2)
+#     7. Model height                 (meters; top)
+#     8. Model reference surface      (meters; ref)
+#     9. Model base                   (meters; bottom)
+#    10. Radius at base of model      (meters; radb)
+#    11. Vertical sampling resolution (meters; res)
+#    12. Coordinate system            (none; crs)
+#    13. Model name                   (none; name)
+
+# General notes:
+#   1. No optimized for efficient numpy array operations
+#   2. Layers for 'sticky air' and the asthenosphere are currently added and 
+#      defined based on the input parameters for model height and depth.
+
+# Instructions (run time)
+#   The code should be executed from a terminal with the following general syntax:
+#     python aspect_crust1_ascii_input.py full/path/to/input/file/ input_file_name
+#
+#   For example, the command to run 'tests/test.py' from the current directory is
+#     python aspect_crust1_ascii_input.py "$PWD"/examples/ example
+
 # Load modules
 import numpy as np; import sys; import pickle; import os;
 
@@ -38,7 +68,7 @@ def main():
                        lon_pts_asp,col_pts_asp,rad_grd_asp)
     
   # Remove .pyc file
-  os.system('rm *.pyc')
+  os.system('rm ' + input_file_directory + '/*.pyc')
 
 
 #----------------------------------------------------------------------------
@@ -119,69 +149,7 @@ def compositional_data(crs,top,bot,ref,lon_col_cr1,lon1,lon2,col1,col2,name,rad_
     write_sph_com_output(radb,name,rad_pts_asp,lon_pts_asp,col_pts_asp, \
                                rad_grd_asp,cor_rad_den_asp)
 
-  elif crs == 'she':
-    write_she_com_output(lon1,col2,radb,name,rad_pts_asp,lon_pts_asp,col_pts_asp, \
-                               rad_grd_asp,cor_rad_den_asp) 
-
 #----------------------------------------------------------------------------
-
-def write_she_com_output(lon1,col2,radb,name,rad_pts_asp,lon_pts_asp,col_pts_asp, \
-                               rad_grd_asp,cor_rad_den_asp):
-
-
-  # Open data file
-  outfile=open('crust1_'+name+'.txt','w')
-
-  # Write header line for different cases
-  # 2D longitudinal profile
-  if lon_pts_asp>1 and col_pts_asp==1:
-    print >> outfile, '# POINTS: %-i %i'% (rad_pts_asp,lon_pts_asp,)
-  # 2D latitudinal profile
-  elif lon_pts_asp==1 and col_pts_asp>1:
-    print >> outfile, '# POINTS: %-i %i'% (rad_pts_asp,col_pts_asp)
-
-  # Convert coordinates from degrees to radians
-  cor_rad_den_asp[:,0:2] = np.radians(cor_rad_den_asp[:,0:2])
-
-  # Sort coordinate arrays so that colatitude is in ascending order
-  inds = np.lexsort((cor_rad_den_asp[:,0],cor_rad_den_asp[:,1])); 
-  cor_rad_den_asp = cor_rad_den_asp[inds,:];
-  
-  # Loop through lon/colat points
-  for i in range(lon_pts_asp*col_pts_asp):
-  
-    # Loop through radial points
-    for j in range(rad_pts_asp):
-      
-      # Create variable containing current row of cor_rad_asp variable
-      cur = np.copy(cor_rad_den_asp[i,:]);
-      
-      # Calculate thickness of each layer at current point
-      thk = cur[2:12] - cur[3:13];
-      
-      # If the thickness of a layer is 0, set its radius to 1.e9 meters
-      for k in range(thk.shape[0]):
-        if thk[k]==0.: cur[k+2]=1.e9
-      
-      # Find index of closest composition to current depth
-      inds = np.argmin(np.absolute(cur[2:12]-rad_grd_asp[j]));
-      
-      # Define variables for output longitiude, colatitude and density
-      lon = cur[0]; col = cur[1]; den = cur[13+inds];
-
-      # Write values to a file
-      print >> outfile, '%-12.2f' % (rad_grd_asp[j] + radb),
-      if lon_pts_asp>1:
-        print >> outfile, '%-12.2f' % (lon - np.radians(lon1)),
-      if col_pts_asp>1:
-        print >> outfile, '%-12.2f' % (col - np.radians(col2)),     
-      print >> outfile, '%3.1f' % (inds),
-      print >> outfile, '%5.1f' % (den)
-
-  # Close output file
-  outfile.close()
-
-#------------------------------------------------------------------------------
 
 def write_sph_com_output(radb,name,rad_pts_asp,lon_pts_asp,col_pts_asp, \
                                rad_grd_asp,cor_rad_den_asp):
@@ -332,3 +300,4 @@ def crust1_coord():
 # Call main function
 main()
 
+#
