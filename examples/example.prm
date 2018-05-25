@@ -1,0 +1,121 @@
+# Global parameters
+set Dimension                              = 2
+set Start time                             = 0
+set End time                               = 0
+set Use years in output instead of seconds = true
+set Nonlinear solver scheme                = single Advection, single Stokes
+set CFL number                             = 0.5
+set Output directory                       = output
+set Timing output frequency                = 1
+set Pressure normalization                 = surface
+
+# Solver settings
+subsection Solver parameters
+  subsection Stokes solver parameters
+    set Use direct solver for Stokes system = false
+    set Linear solver tolerance = 1e-5
+    set Number of cheap Stokes solver steps = 2000
+  end
+end
+
+# Model geometry
+subsection Geometry model
+  set Model name = box
+  subsection Box
+    set X extent = 1110e3
+    set Y extent = 120e3
+    set X repetitions = 111
+    set Y repetitions =  60
+  end
+end
+
+# Mesh refinement specification
+subsection Mesh refinement
+  set Initial adaptive refinement              = 0
+  set Initial global refinement                = 0
+  set Refinement fraction                      = 0.70
+  set Strategy                                 = composition
+  set Coarsening fraction                      = 0.30
+  set Time steps between mesh refinement       = 0
+  set Run postprocessors on initial refinement = false
+end
+
+# Element types
+subsection Discretization
+  set Composition polynomial degree     = 2
+  set Stokes velocity polynomial degree = 2
+  set Temperature polynomial degree     = 1
+end
+
+# Velocity boundary conditions
+subsection Boundary velocity model
+  set Tangential velocity boundary indicators = top, bottom, left, right
+end
+
+# Temperature initial conditions 
+subsection Initial temperature model
+  set Model name = function
+  subsection Function
+    set Function expression = 273
+  end
+end
+
+# Temperature boundary conditiosn (note do not matter with 'Stokes only')
+subsection Boundary temperature model
+  set Model name = box
+  subsection Box
+    set Bottom temperature =  273
+    set Top temperature    =  273
+  end
+end
+
+# Specify number and name of compositional fields
+subsection Compositional fields
+  set Number of fields = 2
+  set Names of fields  = com,den 
+end
+
+# Composition initial conditions
+subsection Initial composition model
+  set Model name = ascii data
+  subsection Ascii data model
+    set Data directory       = /data1/CIG/GSM/codes/aspect_crust1_ascii_input/
+    set Data file name       = crust1_example.txt
+  end
+end
+
+# Boundary composition specification
+subsection Boundary composition model
+  set Model name = initial composition
+end
+
+# Gravity model
+subsection Gravity model
+  set Model name = vertical
+  subsection Vertical
+    set Magnitude = 9.81
+  end
+end
+
+# Material model
+subsection Material model
+  set Model name = crust1
+  subsection Crust1
+    set Reference temperature = 273.0
+    set Densities = 10,1020,920,2000,2000,2000,2550,2850,3000,3300
+    set Specific heats = 1250
+    set Thermal conductivities = 4.7
+    set Thermal expansivities = 4e-5
+    set Viscosities = 1.e21
+  end
+end
+
+# Postprocessing
+subsection Postprocess
+  set List of postprocessors = temperature statistics, composition statistics, visualization
+  subsection Visualization
+    set List of output variables = density, strain rate, viscosity, maximum horizontal compressive stress
+    set Time between graphical output = 0
+    set Output format = vtu
+  end
+end
