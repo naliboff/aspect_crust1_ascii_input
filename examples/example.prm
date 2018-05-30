@@ -1,7 +1,8 @@
 # Global parameters
 set Dimension                              = 2
 set Start time                             = 0
-set End time                               = 0
+set End time                               = 1e3
+set Maximum time step                      = 1e3
 set Use years in output instead of seconds = true
 set Nonlinear solver scheme                = single Advection, single Stokes
 set CFL number                             = 0.5
@@ -103,10 +104,10 @@ subsection Material model
   subsection Crust1
     set Reference temperature = 273.0
     set Densities = 10,1020,920,2000,2000,2000,2550,2850,3000,3300
-    set Specific heats = 1250
+    set Specific heats = 1
     set Thermal conductivities = 4.7
-    set Thermal expansivities = 4e-5
-    set Viscosities = 1.e21
+    set Thermal expansivities = 0.
+    #set Viscosities = 1.e18,1.e18,1.e18,1.e22,1.e22,1.e22,1.e22,1.e22,1.e22,1.e22
   end
 end
 

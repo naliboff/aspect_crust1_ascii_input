@@ -65,7 +65,7 @@ def main():
 
   # Generate compositional field ascii data file
   compositional_data(crs,top,bot,ref,lon_col_cr1,lon1,lon2,col1,col2,name,rad_pts_asp, \
-                       lon_pts_asp,col_pts_asp,rad_grd_asp)
+                       lon_pts_asp,col_pts_asp,rad_grd_asp,input_file_directory)
     
   # Remove .pyc file
   os.system('rm ' + input_file_directory + '/*.pyc')
@@ -98,7 +98,7 @@ def grid_values(top,bot,res,lon1,lon2,col1,col2):
 #----------------------------------------------------------------------------
 
 def compositional_data(crs,top,bot,ref,lon_col_cr1,lon1,lon2,col1,col2,name,rad_pts_asp, \
-                       lon_pts_asp,col_pts_asp,rad_grd_asp):
+                       lon_pts_asp,col_pts_asp,rad_grd_asp, input_file_directory):
 
   # Load crustal thickness bounds (depth (km, convert to m) at top of 9 layers:
   #   water, ice, sed1, sed2, sed3, crust1, crust2, crust3, mantle  
@@ -142,20 +142,20 @@ def compositional_data(crs,top,bot,ref,lon_col_cr1,lon1,lon2,col1,col2,name,rad_
   # Write ASPECT composition ascii input file
   if crs == 'car':
     write_car_com_output(lon1,col2,name,rad_pts_asp,lon_pts_asp,col_pts_asp, \
-                                rad_grd_asp,cor_rad_den_asp)
+                                rad_grd_asp,cor_rad_den_asp,input_file_directory)
   
 
   elif crs == 'sph':
     write_sph_com_output(radb,name,rad_pts_asp,lon_pts_asp,col_pts_asp, \
-                               rad_grd_asp,cor_rad_den_asp)
+                               rad_grd_asp,cor_rad_den_asp, input_file_directory)
 
 #----------------------------------------------------------------------------
 
 def write_sph_com_output(radb,name,rad_pts_asp,lon_pts_asp,col_pts_asp, \
-                               rad_grd_asp,cor_rad_den_asp):
+                               rad_grd_asp,cor_rad_den_asp,input_file_directory):
 
   # Open file to write results to
-  outfile=open('crust1_'+name+'.txt','w')
+  outfile=open(input_file_directory+'/crust1_'+name+'.txt','w')
 
   # Write header line
   print >> outfile, '# POINTS: %-i %i %i'% (rad_pts_asp,lon_pts_asp,col_pts_asp)
@@ -202,10 +202,10 @@ def write_sph_com_output(radb,name,rad_pts_asp,lon_pts_asp,col_pts_asp, \
 #------------------------------------------------------------------------------
 
 def write_car_com_output(lon1,col2,name,rad_pts_asp,lon_pts_asp,col_pts_asp, \
-                                rad_grd_asp,cor_rad_den_asp):
+                                rad_grd_asp,cor_rad_den_asp,input_file_directory):
 
   # Open data file
-  outfile=open('crust1_'+name+'.txt','w')
+  outfile=open(input_file_directory+'/crust1_'+name+'.txt','w')
 
   # Write header line for different cases
   # 2D longitudinal profile
