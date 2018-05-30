@@ -37,7 +37,7 @@
 #     python aspect_crust1_ascii_input.py full/path/to/input/file/ input_file_name
 #
 #   For example, the command to run 'tests/test.py' from the current directory is
-#     python aspect_crust1_ascii_input.py "$PWD"/examples/ example
+#     python aspect_crust1_ascii_input.py "$PWD"/examples/ example_car_2d
 
 # Load modules
 import numpy as np; import sys; import pickle; import os;
@@ -54,6 +54,9 @@ def main():
 
   sys.path.insert(0, input_file_directory)
 
+  temp = str(sys.argv[0])
+  exe_dir = temp[0:-28]
+ 
   # Get user input variables
   exec('from ' + input_file_name + ' import *')
 
@@ -65,7 +68,7 @@ def main():
 
   # Generate compositional field ascii data file
   compositional_data(crs,top,bot,ref,lon_col_cr1,lon1,lon2,col1,col2,name,rad_pts_asp, \
-                       lon_pts_asp,col_pts_asp,rad_grd_asp,input_file_directory)
+                       lon_pts_asp,col_pts_asp,rad_grd_asp,input_file_directory,exe_dir)
     
   # Remove .pyc file
   os.system('rm ' + input_file_directory + '/*.pyc')
@@ -98,15 +101,15 @@ def grid_values(top,bot,res,lon1,lon2,col1,col2):
 #----------------------------------------------------------------------------
 
 def compositional_data(crs,top,bot,ref,lon_col_cr1,lon1,lon2,col1,col2,name,rad_pts_asp, \
-                       lon_pts_asp,col_pts_asp,rad_grd_asp, input_file_directory):
+                       lon_pts_asp,col_pts_asp,rad_grd_asp, input_file_directory,exe_dir):
 
   # Load crustal thickness bounds (depth (km, convert to m) at top of 9 layers:
   #   water, ice, sed1, sed2, sed3, crust1, crust2, crust3, mantle  
-  dep_lay_cr1 = np.loadtxt('data/crust1/crust1.bnds')*1.e3;
+  dep_lay_cr1 = np.loadtxt(exe_dir+'data/crust1/crust1.bnds')*1.e3;
 
   # Load layer density (g/cm3 convert to kg/m3) for 9 layers:
   #   water, ice, sed1, sed2, sed3, crust1, crust2, crust3, mantle  
-  den_lay_cr1 = np.loadtxt('data/crust1/crust1.rho')*1.e3;
+  den_lay_cr1 = np.loadtxt(exe_dir+'data/crust1/crust1.rho')*1.e3;
 
   # Make depth and density (10 kg/m3) layer for air
   dep_lay_air = np.zeros([dep_lay_cr1.shape[0],1]) + (top-ref);

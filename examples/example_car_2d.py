@@ -10,6 +10,6 @@ bot  =    0.0e3      # Model bottom (m)
 radb = 6270.e3       # Radius at base of model (m)
 res  =    1.0e3      # Vertical sampling grid resolution (m)
 crs  = 'car'         # Coordinate system for ASPECT model (car or sph)
-name = 'example'      # Model name
+name = 'example_car_2d'     # Model name
 
 

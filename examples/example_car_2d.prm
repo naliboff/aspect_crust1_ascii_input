@@ -1,7 +1,7 @@
 # Global parameters
 set Dimension                              = 2
 set Start time                             = 0
-set End time                               = 1e3
+set End time                               = 0
 set Maximum time step                      = 1e3
 set Use years in output instead of seconds = true
 set Nonlinear solver scheme                = single Advection, single Stokes
@@ -80,8 +80,8 @@ end
 subsection Initial composition model
   set Model name = ascii data
   subsection Ascii data model
-    set Data directory       = /data1/CIG/GSM/codes/aspect_crust1_ascii_input/
-    set Data file name       = crust1_example.txt
+    set Data directory       = /data1/CIG/GSM/codes/aspect_crust1_ascii_input/examples/
+    set Data file name       = crust1_example_car_2d.txt
   end
 end
 
