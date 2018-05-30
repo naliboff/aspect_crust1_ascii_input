@@ -67,7 +67,7 @@ def main():
   lon_col_cr1 = crust1_coord()
 
   # Generate compositional field ascii data file
-  compositional_data(crs,top,bot,ref,lon_col_cr1,lon1,lon2,col1,col2,name,rad_pts_asp, \
+  compositional_data(crs,radb,top,bot,ref,lon_col_cr1,lon1,lon2,col1,col2,name,rad_pts_asp, \
                        lon_pts_asp,col_pts_asp,rad_grd_asp,input_file_directory,exe_dir)
     
   # Remove .pyc file
@@ -100,7 +100,7 @@ def grid_values(top,bot,res,lon1,lon2,col1,col2):
 
 #----------------------------------------------------------------------------
 
-def compositional_data(crs,top,bot,ref,lon_col_cr1,lon1,lon2,col1,col2,name,rad_pts_asp, \
+def compositional_data(crs,radb,top,bot,ref,lon_col_cr1,lon1,lon2,col1,col2,name,rad_pts_asp, \
                        lon_pts_asp,col_pts_asp,rad_grd_asp, input_file_directory,exe_dir):
 
   # Load crustal thickness bounds (depth (km, convert to m) at top of 9 layers:
@@ -167,7 +167,7 @@ def write_sph_com_output(radb,name,rad_pts_asp,lon_pts_asp,col_pts_asp, \
   cor_rad_den_asp[:,0:2] = np.radians(cor_rad_den_asp[:,0:2])
 
   # Sort coordinate arrays so that colatitude is in ascending order
-  inds = np.lexsort((cor_rad_asp[:,0],cor_rad_den_asp[:,1])); 
+  inds = np.lexsort((cor_rad_den_asp[:,0],cor_rad_den_asp[:,1])); 
   cor_rad_den_asp = cor_rad_den_asp[inds,:];
   
   # Loop through lon/colat points
