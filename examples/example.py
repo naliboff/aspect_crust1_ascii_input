@@ -9,7 +9,6 @@ ref  =  100.e3       # Model Reference surface (m)
 bot  =    0.0e3      # Model bottom (m)
 radb = 6270.e3       # Radius at base of model (m)
 res  =    1.0e3      # Vertical sampling grid resolution (m)
-crs  = 'sph'         # Coordinate system for ASPECT model (car or sph)
-name = 'example_sph_3d'     # Model name
+name = 'example'     # Model name
 
 

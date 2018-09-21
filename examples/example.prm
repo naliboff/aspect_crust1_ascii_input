@@ -1,9 +1,9 @@
 # Global parameters
-set Dimension                              = 2
+set Dimension                              = 3
 set Start time                             = 0
 set End time                               = 0
-set Maximum time step                      = 1e3
 set Use years in output instead of seconds = true
+set Maximum time step                      = 1e3
 set Nonlinear solver scheme                = single Advection, single Stokes
 set CFL number                             = 0.5
 set Output directory                       = output
@@ -21,59 +21,71 @@ end
 
 # Model geometry
 subsection Geometry model
-  set Model name = box
-  subsection Box
-    set X extent = 1110e3
-    set Y extent = 120e3
-    set X repetitions = 111
-    set Y repetitions =  60
+  set Model name = chunk
+  subsection Chunk
+    set Chunk minimum longitude = 82.5
+    set Chunk maximum longitude = 84.5
+    set Chunk minimum latitude = 20.5
+    set Chunk maximum latitude = 30.5
+    set Chunk inner radius = 6170000
+    set Chunk outer radius = 6390000
+    set Longitude repetitions = 10
+    set Latitude repetitions  = 50
+    set Radius repetitions = 11
   end
 end
 
 # Mesh refinement specification
 subsection Mesh refinement
-  set Initial adaptive refinement              = 0
+  set Initial adaptive refinement              = 1
   set Initial global refinement                = 0
   set Refinement fraction                      = 0.70
-  set Strategy                                 = composition
+  set Strategy                                 = density
   set Coarsening fraction                      = 0.30
   set Time steps between mesh refinement       = 0
-  set Run postprocessors on initial refinement = false
+  set Run postprocessors on initial refinement = true
 end
 
 # Element types
 subsection Discretization
   set Composition polynomial degree     = 2
-  set Stokes velocity polynomial degree = 2
+  set Stokes velocity polynomial degree = 1
   set Temperature polynomial degree     = 1
+  set Use locally conservative discretization = true
 end
 
 # Velocity boundary conditions
 subsection Boundary velocity model
-  set Tangential velocity boundary indicators = top, bottom, left, right
+  set Tangential velocity boundary indicators =  north, south, east, west, inner, outer
 end
 
-# Temperature initial conditions 
+
+# Temperature initial conditions (note do matter with 'Stokes only')
 subsection Initial temperature model
-  set Model name = function
-  subsection Function
-    set Function expression = 273
+  set Model name = S40RTS perturbation
+  subsection S40RTS perturbation
+    set Initial condition file name       = S20RTS.sph
+    set Remove degree 0 from perturbation = false
+    set Vs to density scaling             = 0.15
+    set Thermal expansion coefficient in initial temperature scaling = 3e-5
+    set Reference temperature             = 1600
   end
 end
 
 # Temperature boundary conditiosn (note do not matter with 'Stokes only')
 subsection Boundary temperature model
-  set Model name = box
-  subsection Box
-    set Bottom temperature =  273
-    set Top temperature    =  273
+  set Fixed temperature boundary indicators   = inner, outer
+  set Model name = initial temperature
+  subsection Spherical constant
+    set Inner temperature = 1669
+    set Outer temperature = 1370
   end
 end
 
 # Specify number and name of compositional fields
 subsection Compositional fields
   set Number of fields = 2
-  set Names of fields  = com,den 
+  set Names of fields  = com, den 
 end
 
 # Composition initial conditions
@@ -81,19 +93,20 @@ subsection Initial composition model
   set Model name = ascii data
   subsection Ascii data model
     set Data directory       = /data1/CIG/GSM/codes/aspect_crust1_ascii_input/examples/
-    set Data file name       = crust1_example_car_2d.txt
+    set Data file name       = crust1_example_sph_3d.txt
   end
 end
 
 # Boundary composition specification
 subsection Boundary composition model
+   set Fixed composition boundary indicators = inner, outer
   set Model name = initial composition
 end
 
-# Gravity model
 subsection Gravity model
-  set Model name = vertical
-  subsection Vertical
+  set Model name = radial constant
+
+  subsection Radial constant
     set Magnitude = 9.81
   end
 end
@@ -102,11 +115,11 @@ end
 subsection Material model
   set Model name = crust1
   subsection Crust1
-    set Reference temperature = 273.0
+    set Reference temperature = 1600.0
     set Densities = 10,1020,920,2000,2000,2000,2550,2850,3000,3300
-    set Specific heats = 1
+    set Specific heats = 1250.
     set Thermal conductivities = 4.7
-    set Thermal expansivities = 0.
+    set Thermal expansivities = 3e-5
     #set Viscosities = 1.e18,1.e18,1.e18,1.e22,1.e22,1.e22,1.e22,1.e22,1.e22,1.e22
   end
 end
@@ -120,3 +133,4 @@ subsection Postprocess
     set Output format = vtu
   end
 end
+

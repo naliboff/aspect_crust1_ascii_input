@@ -24,8 +24,7 @@
 #     9. Model base                   (meters; bottom)
 #    10. Radius at base of model      (meters; radb)
 #    11. Vertical sampling resolution (meters; res)
-#    12. Coordinate system            (none; crs)
-#    13. Model name                   (none; name)
+#    12. Model name                   (none; name)
 
 # General notes:
 #   1. No optimized for efficient numpy array operations
@@ -67,7 +66,7 @@ def main():
   lon_col_cr1 = crust1_coord()
 
   # Generate compositional field ascii data file
-  compositional_data(crs,radb,top,bot,ref,lon_col_cr1,lon1,lon2,col1,col2,name,rad_pts_asp, \
+  compositional_data(radb,top,bot,ref,lon_col_cr1,lon1,lon2,col1,col2,name,rad_pts_asp, \
                        lon_pts_asp,col_pts_asp,rad_grd_asp,input_file_directory,exe_dir)
     
   # Remove .pyc file
@@ -100,7 +99,7 @@ def grid_values(top,bot,res,lon1,lon2,col1,col2):
 
 #----------------------------------------------------------------------------
 
-def compositional_data(crs,radb,top,bot,ref,lon_col_cr1,lon1,lon2,col1,col2,name,rad_pts_asp, \
+def compositional_data(radb,top,bot,ref,lon_col_cr1,lon1,lon2,col1,col2,name,rad_pts_asp, \
                        lon_pts_asp,col_pts_asp,rad_grd_asp, input_file_directory,exe_dir):
 
   # Load crustal thickness bounds (depth (km, convert to m) at top of 9 layers:
@@ -133,6 +132,8 @@ def compositional_data(crs,radb,top,bot,ref,lon_col_cr1,lon1,lon2,col1,col2,name
   # Create variable that combines coordinate ("cor"), layer radii ("rad") and densities ("den")
   cor_rad_den_cr1 = np.concatenate((lon_col_cr1,rad_lay_cr1,den_lay_cr1),axis=1);
 
+  print lon_col_cr1.shape, rad_lay_cr1.shape, den_lay_cr1.shape
+
   # Find which CRUST1 points lie within defined geographical bounds
   inds = np.where( (cor_rad_den_cr1[:,0]>=lon1)
                  & (cor_rad_den_cr1[:,0]<=lon2)
@@ -142,20 +143,17 @@ def compositional_data(crs,radb,top,bot,ref,lon_col_cr1,lon1,lon2,col1,col2,name
   # Create new layer radius and density array based on defined geographic bounds
   tmp = cor_rad_den_cr1[inds,:]; cor_rad_den_asp = tmp[0,:,:]; 
 
-  # Write ASPECT composition ascii input file
-  if crs == 'car':
-    write_car_com_output(lon1,col2,name,rad_pts_asp,lon_pts_asp,col_pts_asp, \
-                                rad_grd_asp,cor_rad_den_asp,input_file_directory)
-  
+  #print tmp.shape, cor_rad_den_asp.shape
+  #print cor_rad_den_asp[0,:]
 
-  elif crs == 'sph':
-    write_sph_com_output(radb,name,rad_pts_asp,lon_pts_asp,col_pts_asp, \
-                               rad_grd_asp,cor_rad_den_asp, input_file_directory)
+  # Write ASPECT composition ascii input file
+  write_output(radb,name,rad_pts_asp,lon_pts_asp,col_pts_asp, \
+                       rad_grd_asp,cor_rad_den_asp, input_file_directory)
 
 #----------------------------------------------------------------------------
 
-def write_sph_com_output(radb,name,rad_pts_asp,lon_pts_asp,col_pts_asp, \
-                               rad_grd_asp,cor_rad_den_asp,input_file_directory):
+def write_output(radb,name,rad_pts_asp,lon_pts_asp,col_pts_asp, \
+                 rad_grd_asp,cor_rad_den_asp,input_file_directory):
 
   # Open file to write results to
   outfile=open(input_file_directory+'/crust1_'+name+'.txt','w')
@@ -169,13 +167,13 @@ def write_sph_com_output(radb,name,rad_pts_asp,lon_pts_asp,col_pts_asp, \
   # Sort coordinate arrays so that colatitude is in ascending order
   inds = np.lexsort((cor_rad_den_asp[:,0],cor_rad_den_asp[:,1])); 
   cor_rad_den_asp = cor_rad_den_asp[inds,:];
-  
+
   # Loop through lon/colat points
   for i in range(lon_pts_asp*col_pts_asp):
   
     # Loop through radial points
     for j in range(rad_pts_asp):
-      
+
       # Create variable containing current row of cor_rad_asp variable
       cur = np.copy(cor_rad_den_asp[i,:]);
       
