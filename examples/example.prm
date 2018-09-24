@@ -85,7 +85,8 @@ end
 # Specify number and name of compositional fields
 subsection Compositional fields
   set Number of fields = 2
-  set Names of fields  = com, den 
+  set Names of fields  = density_field, air, water, ice, sediment_upper, sediment_middle, sediment_lower, \ 
+                         crust_upper, crust_middle, crust_lower, mantle_lithosphere, asthenosphere
 end
 
 # Composition initial conditions
@@ -93,7 +94,7 @@ subsection Initial composition model
   set Model name = ascii data
   subsection Ascii data model
     set Data directory       = /data1/CIG/GSM/codes/aspect_crust1_ascii_input/examples/
-    set Data file name       = crust1_example_sph_3d.txt
+    set Data file name       = crust1_example.txt
   end
 end
 

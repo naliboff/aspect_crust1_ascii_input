@@ -36,7 +36,7 @@
 #     python aspect_crust1_ascii_input.py full/path/to/input/file/ input_file_name
 #
 #   For example, the command to run 'tests/test.py' from the current directory is
-#     python aspect_crust1_ascii_input.py "$PWD"/examples/ example_car_2d
+#     python aspect_crust1_ascii_input.py "$PWD"/examples/ example
 
 # Load modules
 import numpy as np; import sys; import pickle; import os;
@@ -132,8 +132,6 @@ def compositional_data(radb,top,bot,ref,lon_col_cr1,lon1,lon2,col1,col2,name,rad
   # Create variable that combines coordinate ("cor"), layer radii ("rad") and densities ("den")
   cor_rad_den_cr1 = np.concatenate((lon_col_cr1,rad_lay_cr1,den_lay_cr1),axis=1);
 
-  print lon_col_cr1.shape, rad_lay_cr1.shape, den_lay_cr1.shape
-
   # Find which CRUST1 points lie within defined geographical bounds
   inds = np.where( (cor_rad_den_cr1[:,0]>=lon1)
                  & (cor_rad_den_cr1[:,0]<=lon2)
@@ -186,7 +184,12 @@ def write_output(radb,name,rad_pts_asp,lon_pts_asp,col_pts_asp, \
       
       # Find index of closest composition to current depth
       inds = np.argmin(np.absolute(cur[2:12]-rad_grd_asp[j]));
-      
+
+      composition_layer_values = np.zeros([11])
+      for k in range(11):
+        if inds==k:
+          composition_layer_values[k] = 1.0
+
       # Define variables for output longitiude, colatitude and density
       lon = cur[0]; col = cur[1]; den = cur[13+inds];
       
@@ -194,61 +197,18 @@ def write_output(radb,name,rad_pts_asp,lon_pts_asp,col_pts_asp, \
       print >> outfile, '%-12.2f' % (rad_grd_asp[j]+ radb),
       print >> outfile, '%-9.6f'  % (lon),
       print >> outfile, '%-9.6f'  % (col),
-      print >> outfile, '%3.1f'   % (inds),
-      print >> outfile, '%10.1f'  % (den)
-
-  # Close output file
-  outfile.close()
-
-#------------------------------------------------------------------------------
-
-def write_car_com_output(lon1,col2,name,rad_pts_asp,lon_pts_asp,col_pts_asp, \
-                                rad_grd_asp,cor_rad_den_asp,input_file_directory):
-
-  # Open data file
-  outfile=open(input_file_directory+'/crust1_'+name+'.txt','w')
-
-  # Write header line for different cases
-  # 2D longitudinal profile
-  if lon_pts_asp>1 and col_pts_asp==1:
-    print >> outfile, '# POINTS: %-i %i'% (lon_pts_asp,rad_pts_asp)
-  # 2D latitudinal profile
-  elif lon_pts_asp==1 and col_pts_asp>1:
-    print >> outfile, '# POINTS: %-i %i'% (col_pts_asp,rad_pts_asp)
-  # 3D
-  elif lon_pts_asp>1 and col_pts_asp>1:
-    print >> outfile, '# POINTS: %-i %i %i'% (lon_pts_asp,col_pts_asp,rad_pts_asp)
-
-  # Loop through radial points
-  for j in range(rad_pts_asp):
-
-    # Loop through lon/colat points
-    for i in range(lon_pts_asp*col_pts_asp):
-
-      # Create variable containing current row of cor_rad_asp variable
-      cur = np.copy(cor_rad_den_asp[i,:]); 
-
-      # Calculate thickness of each layer at current point
-      thk = cur[2:12] - cur[3:13];
-
-      # If the thickness of a layer is 0, set its radius to 1.e9 meters
-      for k in range(thk.shape[0]):
-        if thk[k]==0.: cur[k+2]=1.e9
-      
-      # Find index of closest composition to current depth
-      inds = np.argmin(np.absolute(cur[2:12]-rad_grd_asp[j]));
-      
-      # Define variables for output longitiude, colatitude and density
-      lon = cur[0]; col = cur[1]; den = cur[13+inds];
-
-      # Write values to a file
-      if lon_pts_asp>1:
-        print >> outfile, '%-12.2f' % ((lon-lon1)*111.e3),
-      if col_pts_asp>1:
-        print >> outfile, '%-12.2f' % ((col-col2)*111.e3),
-      print >> outfile, '%-12.2f' % (rad_grd_asp[j]),
-      print >> outfile, '%3.1f' % (inds),
-      print >> outfile, '%10.1f' % (den)
+      print >> outfile, '%10.1f'  % (den),
+      print >> outfile, '%10.1f'  % (composition_layer_values[0]),
+      print >> outfile, '%10.1f'  % (composition_layer_values[1]),
+      print >> outfile, '%10.1f'  % (composition_layer_values[2]),
+      print >> outfile, '%10.1f'  % (composition_layer_values[3]),
+      print >> outfile, '%10.1f'  % (composition_layer_values[4]),
+      print >> outfile, '%10.1f'  % (composition_layer_values[5]),
+      print >> outfile, '%10.1f'  % (composition_layer_values[6]),
+      print >> outfile, '%10.1f'  % (composition_layer_values[7]),
+      print >> outfile, '%10.1f'  % (composition_layer_values[8]),
+      print >> outfile, '%10.1f'  % (composition_layer_values[9]),
+      print >> outfile, '%10.1f'  % (composition_layer_values[10])
 
   # Close output file
   outfile.close()
